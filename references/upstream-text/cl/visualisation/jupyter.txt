@@ -1,0 +1,35 @@
+CL API Reference: cl.visualisation.jupyter cl.visualisation Contents
+ Visualisation utilities for Jupyter
+ cl.visualisation.jupyter
+ display_visualiser
+ show_activity
+ Modules
+ cl
+ cl.analysis
+ cl.app
+ cl.app.init
+ cl.app.model
+ cl.app.pack
+ cl.app.run
+ cl.playback
+ cl.visualisation
+ cl.visualisation.jupyter
+ built with pdoc
+ Visualisation utilities for Jupyter
+ This module provides utility methods for displaying visualisations in Jupyter notebooks.
+ cl . visualisation .jupyter
+ def display_visualiser ( javascript_file : str | pathlib . Path , html_file : str | pathlib . Path | None = None , data_streams : list [ str ] | None = None , use_sidebar : bool = True , aspect_ratio : float | None = None ):
+ Display a custom visualiser in a Jupyter notebook.
+ Arguments:
+ javascript_file: Path to the visualiser's JavaScript module file.
+ html_file: Optional path to an HTML file to include in the visualiser.
+ data_streams: Optional list of data stream names to connect to the visualiser.
+ use_sidebar: Whether to enable the sidebar layout for the visualiser, when used in Jupyter notebook/lab environment.
+ aspect_ratio: Optional aspect ratio (width / height) for the visualiser display area. If not provided, height is determined from the content.
+ def show_activity ( mode : Literal [ '2d' , '3d' ] = '2d' , use_sidebar : bool = True , focus_on_channels : int | Sequence [ int ] | cl.ChannelSet | None = None , ** kwargs ):
+ Show the activity visualiser in a Jupyter notebook, supporting both 2D and 3D modes.
+ Arguments:
+ mode: The visualisation mode, either "2d" or "3d".
+ use_sidebar: Whether to enable the sidebar layout for the visualiser, when used in Jupyter notebook/lab.
+ focus_on_channels: Channel or list of channels to focus on initially.
+ **kwargs: Additional query parameters to pass to the visualiser.

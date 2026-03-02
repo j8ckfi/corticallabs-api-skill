@@ -1,0 +1,109 @@
+CL API Reference: cl.app.model cl.app Contents
+ Cortical Labs API: Applications Models and Types Overview
+ Key Categories
+ cl.app.model
+ STIMMABLE_CHANNELS
+ StimmableChannel
+ ChannelList
+ StimAmplitudeMicroAmps
+ StimFrequencyHz
+ StimPulseWidthMicroSeconds
+ DurationSeconds
+ FrozenBaseModel
+ SizeIntModel width
+ height
+ StimPulseComponentModel pulse_width_us
+ signed_amplitude_ua
+ StimDesignModel to_stim_design
+ components
+ StimFrequencyRangeHzModel span
+ min
+ max
+ Modules
+ cl
+ cl.analysis
+ cl.app
+ cl.app.init
+ cl.app.model
+ cl.app.pack
+ cl.app.run
+ cl.playback
+ cl.visualisation
+ cl.visualisation.jupyter
+ built with pdoc
+ Cortical Labs API: Applications Models and Types
+ Overview
+ This module defines reusable types and Pydantic models used across applications
+for configuration and data representation. These types provide:
+ Annotated constraints : Type aliases with built-in validation to ensure
+parameter values stay within safe operational ranges (e.g., stimulation
+amplitudes between 0 (exclusive) to 3 (inclusive) µA, pulse widths in 20 µs steps).
+ Custom UI rendering : Special formatting hints for the web-based configuration
+editor, providing enhanced input controls like channel pickers and duration
+entries.
+ Frozen models : Immutable Pydantic models with strict validation that prevent
+accidental modification and ensure configuration integrity throughout application
+execution.
+ Key Categories
+ Base Models
+ FrozenBaseModel : Recommended base class for all configuration models,
+providing immutability and strict field validation.
+ Stimulation Types
+ Constrained types for defining electrical stimulation parameters within hardware
+limits:
+ StimAmplitudeMicroAmps : range (0.0, 3.0] µA in absolute terms
+ StimPulseWidthMicroSeconds : range (0, 10000] µs in 20 µs steps
+ StimFrequencyHz : range (0.0, 200.0] Hz
+ StimmableChannel : Valid channel numbers (0-63, excluding 0, 4, 7, 56, 63)
+ ChannelList : Lists of channels with custom picker UI
+ Important : Total charge delivered per stim pulse should not exceed 3 nC.
+ Composite Models
+ StimPulseComponentModel : Single-phase pulse definition with amplitude and width
+ StimDesignModel : Multi-component pulse designs with automatic validation
+ StimFrequencyRangeHzModel : Min/max frequency ranges with validation
+ SizeIntModel : 2D integer dimensions for layouts and grids
+ General Types
+ DurationSeconds : A non-negative integer formatted as separate hours, minutes, and seconds entries in the config UI
+ These types streamline application development by handling validation, serialization,
+and providing a consistent interface to the configuration editor.
+ cl . app .model
+ type STIMMABLE_CHANNELS = Literal[1, 2, 3, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62]
+ A literal type representing all stimulatable channel numbers (0-63, excluding non-stimulatable channels: 0, 4, 7, 56, 63).
+ type StimmableChannel = STIMMABLE_CHANNELS
+ A stimulatable channel number, defined as an integer between 0 and 63, excluding the invalid channels: 0, 4, 7, 56, and 63.
+An annotated version of STIMMABLE_CHANNELS with a name and description for use in Pydantic models.
+ type ChannelList = list[StimmableChannel]
+ A valid list of channel numbers, defined as a list containing between 1 and 59 valid channel numbers. This will be rendered with a custom interface in the config UI.
+ type StimAmplitudeMicroAmps = float
+ A valid stimulation amplitude, defined as a float greater than 0.0 and less than or equal to 3.0 microamperes.
+1.0 microamperes is a commonly used default value.
+ type StimFrequencyHz = float
+ A valid stimulation frequency, defined as a float greater than 0.0 and less than 10000.0 Hz.
+ type StimPulseWidthMicroSeconds = int
+ A valid stimulation pulse width, defined as an integer greater than 0 and less than or equal to 10000 microseconds,
+in steps of 20 microseconds. 160 microseconds is a commonly used default value.
+ type DurationSeconds = int
+ A positive integer representing a duration in seconds. This will be rendered with a custom HH:MM:SS format in the config UI.
+ class FrozenBaseModel ( pydantic.main.BaseModel ):
+ A Pydantic BaseModel with frozen (immutable) instances, and extra fields forbidden.
+ This is the recommended base class for all configuration models and sub-models to be used to define
+application configurations, for maximum compatibility with the applications configuration web UI.
+ class SizeIntModel ( FrozenBaseModel ):
+ Base class for positive 2D integer size configurations.
+ width : int
+ height : int
+ class StimPulseComponentModel ( FrozenBaseModel ):
+ A single component of a stimulation pulse, either a negative or positive leading-edge phase.
+ pulse_width_us : StimPulseWidthMicroSeconds
+ signed_amplitude_ua : StimAmplitudeMicroAmps
+ class StimDesignModel ( FrozenBaseModel ):
+ Configuration for a single stimulation design.
+ def to_stim_design ( self ) -> cl.StimDesign :
+ Converts the stimulation design configuration model to a StimDesign instance that can be used directly for stimulation.
+ components : list[ StimPulseComponentModel ]
+ class StimFrequencyRangeHzModel ( FrozenBaseModel ):
+ A valid stimulation frequency range in Hz.
+ span : StimFrequencyHz
+ Returns the span of the range, i.e. the difference between max and min.
+ min : StimFrequencyHz
+ max : StimFrequencyHz

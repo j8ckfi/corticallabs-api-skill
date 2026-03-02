@@ -1,0 +1,538 @@
+CL API Reference: cl.analysis cl Contents
+ Cortical Labs Analysis Toolkit
+ Quick Start
+ Implemented Metrics
+ Result Objects and Visualisation Saving and Loading Results
+ Network burst analysis
+ Discrete Cosine Transform (DCT)
+ Criticality Analysis
+ Spike-Triggered Histograms
+ Functional Connectivity
+ Notes
+ cl.analysis
+ AnalysisMetadata file_path
+ channel_count
+ sampling_frequency
+ duration_frames
+ duration_seconds
+ AnalysisResult metadata
+ from_file
+ save
+ AnalysisResultNetworkBursts bursts
+ onset_freq_hz
+ offset_freq_hz
+ network_burst_count
+ network_burst_durations_sec
+ network_burst_spike_counts
+ total_network_burst_duration_sec
+ bin_size_sec
+ bin_boundaries_frames
+ firing_rate_per_channel_and_bin
+ spike_frames_by_channel
+ plot
+ AnalysisResultCriticality bin_size_sec
+ percentile_threshold
+ activity_threshold
+ duration_thresholds
+ random_seed
+ n_bootstraps
+ avalanche_spike_counts
+ avalanche_sizes
+ avalanche_spike_counts_per_bin
+ avalanche_shapes
+ avalanche_durations
+ avalanche_shape_collapse_error
+ inter_avalanche_durations
+ unique_durations_within_threshold
+ mean_spike_counts_per_bin_by_duration
+ average_profiles
+ beta_exponent
+ beta_exponent_std
+ beta_range
+ beta_candidates_over_range
+ tau_exponent_spike_counts
+ alpha_exponent_durations
+ ks_min_bound_spike_counts
+ ks_min_bound_durations
+ ks_statistic_spike_counts
+ ks_statistic_size
+ ks_statistic_duration
+ exclusion_bounds_spike_counts
+ exclusion_bounds_durations
+ scaling_relation_exponent_predicted
+ scaling_relation_exponent_fitted
+ scaling_relation_time_values
+ scaling_relation_fitted_params
+ deviation_from_criticality_coefficient
+ branching_ratio
+ time_lags_k
+ time_lags_slopes
+ time_lags_fit_parameters
+ plot_avalanche_sizes
+ plot_avalanche_durations
+ plot_deviation_from_criticality_coefficient
+ plot_avalanche_shape_collapse_analysis
+ plot_branching_ratio
+ AnalysisResultDctFeatures mea_layout
+ k
+ dct_height_coefficients
+ dct_width_coefficients
+ dct_features
+ plot
+ AnalysisResultFiringStats bin_size_sec
+ firing_counts
+ firing_rates
+ channel_mean_firing_rates
+ channel_var_firing_rates
+ culture_mean_firing_rates
+ culture_var_firing_rates
+ culture_max_firing_rates
+ channel_ISI
+ channel_ISI_mean
+ channel_ISI_var
+ culture_ISI_mean
+ culture_ISI_var
+ AnalysisResultsFunctionalConnectivity bin_size_sec
+ correlation_threshold
+ adjacency_matrix
+ total_edge_weights
+ average_edge_weights
+ clustering_coefficient
+ graph_partition
+ modularity_index
+ max_betweenness_centrality
+ plot
+ AnalysisResultInformationEntropy bin_size_sec
+ information_entropy_per_time_bin
+ AnalysisResultComplexityLempelZiv bin_size_sec
+ lzc_scores_per_channel
+ AnalysisResultSpikeTriggeredHistogram bin_size_sec
+ start_sec
+ end_sec
+ num_eligible_channels
+ min_firing_rate_threshold_hz
+ histogram_bins
+ histograms
+ plot
+ SpecialFloat
+ Array1DFloat
+ Array1DInt
+ Array2DInt
+ Array2DFloat
+ Burst Burst
+ start_frame
+ end_frame
+ get_duration
+ Bursts Bursts
+ data
+ is_bursting
+ step
+ finalise
+ BurstsType
+ Modules
+ cl
+ cl.analysis
+ cl.app
+ cl.app.init
+ cl.app.model
+ cl.app.pack
+ cl.app.run
+ cl.playback
+ cl.visualisation
+ cl.visualisation.jupyter
+ built with pdoc
+ Cortical Labs Analysis Toolkit
+ A modular analysis package for computing electrophysiological and network-level metrics from multi-channel neural recordings of CL1.
+ The library exposes a high-level cl.RecordingView API that coordinates a suite of rigorously implemented metric functions.
+ Quick Start
+ cl.RecordingView is the central interface for analysis. It provides a standardised view over a neural recording and exposes convenience methods that internally call the metric functions defined in this package.
+ from cl import RecordingView recording_path = "path/to/recording.h5" recording = RecordingView ( recording_path ) # To calculate a metric, replace "metric" with one of the implemented metrics # Each result object is a type of `AnalysisResult` result = recording . analyse_metric () # To create a plot result . plot () # To save a result result . save ( "path/to/result.json" ) # Load a previously saved result result = AnalysisResult.from_file ( "path/to/result.json" )
+ Implemented Metrics
+ This document describes all public analysis and visualisation functions exposed by RecordingView .
+All analysis functions return typed result objects that are sub-classed from AnalysisResult (e.g. AnalysisResultFiringStats ). These objects expose metric values and are designed to be inspectable and reusable in downstream analysis.
+ The table below lists all public analysis and visualisation methods exposed by cl.RecordingView .
+ RecordingView method Short description
+ cl.RecordingView.plot_spikes_and_stims Raster plot of spikes and optional stimulation events.
+ cl.RecordingView.analyse_firing_stats returns AnalysisResultFiringStats Basic firing statistics from binned spike activity.
+ cl.RecordingView.analyse_network_bursts returns AnalysisResultNetworkBursts Detect network-level bursts using population spike-rate thresholding.
+ cl.RecordingView.analyse_criticality returns AnalysisResultCriticality Detect neuronal avalanches and compute criticality metrics.
+ cl.RecordingView.analyse_information_entropy returns AnalysisResultInformationEntropy Per-bin Bernoulli entropy from fraction of active channels.
+ cl.RecordingView.analyse_lempel_ziv_complexity returns AnalysisResultComplexityLempelZiv Per-channel LZ78 complexity of binned spike sequences.
+ cl.RecordingView.analyse_dct_features returns AnalysisResultDctFeatures Spatial DCT features from per-channel spike counts on the MEA layout.
+ cl.RecordingView.analyse_spike_triggered_histogram returns AnalysisResultSpikeTriggeredHistogram Spike-triggered histograms for ordered channel pairs.
+ cl.RecordingView.analyse_functional_connectivity returns AnalysisResultsFunctionalConnectivity Functional connectivity and additional graph summaries.
+ Result Objects and Visualisation
+ All analysis functions described above return typed result objects (e.g. AnalysisResultCriticality , AnalysisResultDctFeatures ). These result objects are designed to support standardised visualisation.
+ Saving and Loading Results
+ All result objects support persistence and can be saved to disk and reloaded without recomputation.
+ Typical usage pattern:
+ result = recording . analyse_criticality ( ... ) result . save ( "criticality_result.json" ) loaded = AnalysisResultCriticality.from_file ( "criticality_result.json" )
+ Saved results include:
+ Computed metric values
+ Analysis parameters
+ Metadata required for reproducibility
+ (Optional) Metadata required for plotting
+ Basic Visualisation
+ cl.RecordingView.plot_spikes_and_stims creates a raster plot of spike events and (optionally) stimulation events for a neural recording, with optional restrictions on the displayed time range and channel subset.
+ from cl import RecordingView recording = RecordingView ( recording_path ) recording . plot_spikes_and_stims ()
+ Figure: Detected spikes and delivered stimulations on sample recorded channels.
+ Built-in Plotting Interface
+ Some result objects provide a .plot() method for quick, standardised visualisation of the analysis outcome.
+These plotting methods are intended for exploratory analysis, diagnostics, and reporting.
+ The following result types expose a .plot() interface:
+ Network burst analysis
+ Discrete Cosine Transform (DCT) features
+ Criticality analysis
+ Spike-triggered histograms
+ Functional connectivity
+ Network burst analysis
+ Created with AnalysisResultNetworkBursts.plot() .
+ Figure: Average network firing and detected network bursts.
+ result = recording . analyse_network_bursts () result . plot ()
+ Discrete Cosine Transform (DCT)
+ Created with AnalysisResultDctFeatures.plot() .
+ Figure: Spatial DCT basis functions (k = 3) defined over the MEA layout.
+ result = recording . analyse_dct_features ( k = 3 ) result . plot ()
+ Criticality Analysis
+ Created with AnalysisResultCriticality.plot_avalanche_sizes() , AnalysisResultCriticality.plot_avalanche_durations() , and AnalysisResultCriticality.plot_deviation_from_criticality_coefficient() .
+ Figure: Neuronal avalanche size and duration distributions as well as the DCC estimation.
+ Created with AnalysisResultCriticality.plot_branching_ratio() .
+ Figure: Branching ratio estimated.
+ Created with AnalysisResultCriticality.plot_avalanche_shape_collapse_analysis() .
+ Figure: Neuronal avalanche shape collapse metrics and scaled avalanche profiles.
+ result = recording . analyse_criticality ( ... ) result . plot_avalanche_sizes () result . plot_avalanche_durations () result . plot_deviation_from_criticality_coefficient () result . plot_branching_ratio () result . plot_avalanche_shape_collapse_analysis ()
+ Spike-Triggered Histograms
+ Created with AnalysisResultSpikeTriggeredHistogram.plot() .
+ Figure: Spike-triggered histogram results visualise selected population responses aligned to trigger spikes from selected high-activity channels.
+ result = recording . analyse_spike_triggered_histogram ( ... ) result . plot ()
+ Functional Connectivity
+ Created with AnalysisResultsFunctionalConnectivity.plot() .
+ Figure: Functional connectivity results support visualisation of derived graph representations, where edge weights encode pairwise correlation strengths and node colours indicate membership in detected Louvain communities.
+.
+ result = recording . analyse_functional_connectivity ( ... ) result . plot ()
+ Notes
+ Plotting methods are non-destructive and do not modify stored results.
+ Saved result files remain fully compatible with plotting after reload.
+ cl .analysis
+ class AnalysisMetadata ( pydantic.main.BaseModel ):
+ Contains metadata relating to the recording for analysis results.
+ file_path : str
+ Path to the recording file.
+ channel_count : int
+ Number of channels in the recording.
+ sampling_frequency : int | float
+ Sampling frequency in Hz.
+ duration_frames : int
+ Total frame count.
+ duration_seconds : float
+ Total recording duration in seconds.
+ class AnalysisResult ( pydantic.main.BaseModel ):
+ Base analysis class for one recording.
+ metadata : AnalysisMetadata
+ Metadata relating to the recording for analysis results.
+ @classmethod
+ def from_file ( cls , fpath : pathlib . Path | str ) -> AnalysisResult :
+ Loads an instance of supported AnalysisResult from a save file.
+ Arguments:
+ fpath: path to the file to load.
+ def save ( self , fpath : pathlib . Path | str ):
+ Saves the AnalysisResult a json file.
+ Arguments:
+ fpath: save path.
+ class AnalysisResultNetworkBursts ( cl.analysis.AnalysisResult ):
+ Burst analysis results for one recording.
+ bursts : Bursts
+ onset_freq_hz : float
+ Firing rate threshold to enter a burst.
+ offset_freq_hz : float
+ Firing rate threshold to exit a burst.
+ network_burst_count : int
+ The total number of network bursts detected.
+ network_burst_durations_sec : list[float]
+ A list of the durations (in seconds) of each burst.
+ network_burst_spike_counts : list[int]
+ A list of the number of spikes in each burst.
+ total_network_burst_duration_sec : float
+ The sum of all network burst durations.
+ bin_size_sec : float
+ Size of each time bin in seconds.
+ bin_boundaries_frames : Array1DInt
+ Boundaries of the time bins in frames shape (time_bin_count,).
+ firing_rate_per_channel_and_bin : Array1DFloat
+ Specifies firing rate over time shape (time_bin_count,).
+ spike_frames_by_channel : dict[int, Array1DInt]
+ Frames that a spike has occurred (values) for each channel (keys).
+ def plot ( self , figsize : tuple [ int , int ] = ( 12 , 8 ) , title : str | None = None , save_path : str | None = None , limit_to_time_range_secs : tuple [ float , float ] | None = None ):
+ Creates a visualisation of the spikes and bursts in this recording, containing:
+ Upper: a line plot of the spike rate per channel and time bin, and
+ Lower: a raster plot of spikes with bursts as highlighted regions.
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ limit_to_time_range_secs: If provided, limit the time axis as a tuple of (start_time_secs, end_time_secs) .
+ class AnalysisResultCriticality ( cl.analysis.AnalysisResult ):
+ Criticality analysis results for one recording.
+ bin_size_sec : float
+ Size of each time bin in seconds.
+ percentile_threshold : float
+ Percentile value used to calculate the activity threshold.
+ activity_threshold : float
+ Threshold used to identify an avalanche.
+ duration_thresholds : tuple[int, int]
+ Thresholds for avalanche durations in number of frame bins.
+ random_seed : int
+ Random seed used for bootstrapping.
+ n_bootstraps : int
+ Number of bootstraps to perform to estimate beta exponent variability.
+ avalanche_spike_counts : Array1DInt
+ Count of spikes in each avalanche, also known as "size".
+ avalanche_sizes : Array1DInt
+ Alias for avalanche_spike_counts .
+ avalanche_spike_counts_per_bin : list[Array1DInt]
+ Spike counts for each time bin in each avalanche, also known as "shape".
+ avalanche_shapes : list[Array1DInt]
+ Alias for avalanche_spike_counts_per_bin .
+ avalanche_durations : Array1DInt
+ Duration of each avalanche in number of frame bins.
+ avalanche_shape_collapse_error : SpecialFloat
+ Calculated as the absolute difference between beta_exponent and scaling_relation_exponent_fitted .
+ inter_avalanche_durations : Array1DInt
+ Duration of intervals between avalanches in number of frame bins.
+ unique_durations_within_threshold : Array1DInt
+ Unique durations that is within the threshold.
+ mean_spike_counts_per_bin_by_duration : list[Array1DFloat]
+ Average spike counts per bin sorted by duration, also known as "profile".
+ average_profiles : list[Array1DFloat]
+ Alias for mean_spike_counts_per_bin_by_duration .
+ beta_exponent : float
+ Beta exponent of the neural avalanches.
+ beta_exponent_std : SpecialFloat
+ Estimated standard deviation of the beta exponent over n_bootstraps.
+Could be NaN if there is not enough profiles to consider (min 2).
+ beta_range : Array1DFloat
+ Range of beta values to scan over.
+ beta_candidates_over_range : Array1DFloat
+ Candidates for the beta exponent over the beta_range.
+ tau_exponent_spike_counts : SpecialFloat
+ Tau exponent relating to avalanche spike counts (sizes).
+ alpha_exponent_durations : SpecialFloat
+ Alpha exponent relating to avalanche durations.
+ ks_min_bound_spike_counts : float
+ Minimum value (x0) that minimizes the KS statistic for avalanche spike counts (sizes).
+ ks_min_bound_durations : float
+ Minimum value (x0) that minimizes the KS statistic for avalanche durations (sizes).
+ ks_statistic_spike_counts : SpecialFloat
+ Kolmogorov-Smirnov statistic for avalanche spike counts (sizes).
+ ks_statistic_size : SpecialFloat
+ Alias for ks_statistic_spike_counts .
+ ks_statistic_duration : SpecialFloat
+ Kolmogorov-Smirnov statistic for avalanche durations.
+ exclusion_bounds_spike_counts : tuple[float, float]
+ Exclusion bounds used for calculating ks_statistic_spike_counts.
+ exclusion_bounds_durations : tuple[float, float]
+ Exclusion bounds used for calculating ks_statistic_durations.
+ scaling_relation_exponent_predicted : SpecialFloat
+ Predicted scaling relation exponent.
+ scaling_relation_exponent_fitted : SpecialFloat
+ Fitted scaling relation exponent.
+ scaling_relation_time_values : Array1DInt
+ Time values used for fitting scaling relation.
+ scaling_relation_fitted_params : Array1DFloat
+ Parameters obtained from fitting scaling relation.
+ deviation_from_criticality_coefficient : SpecialFloat
+ Deviation from criticality coefficient,
+i.e. deviation of predicted and fitted scaling relation exponents.
+ branching_ratio : SpecialFloat
+ Estimated branching ratio.
+ time_lags_k : Array1DFloat
+ Time lags used for slop estimation (parameter "k").
+ time_lags_slopes : Array1DFloat
+ Regression slopes for each time lag.
+ time_lags_fit_parameters : Array1DFloat
+ Optimal parameters of the exponential fit function.
+ def plot_avalanche_sizes ( self , figsize : tuple [ int , int ] = ( 5 , 4 ) , title : str | None = None , save_path : str | None = None , ax : matplotlib . axes . _axes . Axes | None = None ) -> matplotlib . axes . _axes . Axes :
+ Creates a plot of Avalanche sizes and its fitted PDF.
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ ax: Axes draw the plots. (Defaults to None).
+ Return:
+ Axes: Axes on which the plot was drawn.
+ def plot_avalanche_durations ( self , figsize : tuple [ int , int ] = ( 5 , 4 ) , title : str | None = None , save_path : str | None = None , ax : matplotlib . axes . _axes . Axes | None = None ) -> matplotlib . axes . _axes . Axes :
+ Creates a plot of Avalanche durations and its fitted PDF.
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ ax: Axes draw the plots. (Defaults to None).
+ Return:
+ Axes: Axes on which the plot was drawn.
+ def plot_deviation_from_criticality_coefficient ( self , figsize : tuple [ int , int ] = ( 5 , 4 ) , title : str | None = None , save_path : str | None = None , ax : matplotlib . axes . _axes . Axes | None = None ) -> matplotlib . axes . _axes . Axes | None :
+ Creates a plot of Deviation from Criticality Coefficient (DCC).
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ ax: Axes draw the plots. (Defaults to None).
+ Return:
+ Axes: Axes on which the plot was drawn.
+ def plot_avalanche_shape_collapse_analysis ( self , figsize : tuple [ float , float ] = ( 4.5 , 12 ) , title : str | None = None , save_path : str | None = None , axes : list [ matplotlib . axes . _axes . Axes ] | None = None ) -> list [ matplotlib . axes . _axes . Axes ] :
+ Creates three plots based on avalanche shape collapse analysis, being:
+ Scaled Variance at Optimal Beta
+ Collapse Metric vs Scaling Exponent
+ Scaled Avalanche Profiles (Shape Collapse)
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ axes: List of three Axes to draw the plots. (Defaults to None).
+ Returns:
+ list[Axes]: List of three Axes used to draw the plots.
+ def plot_branching_ratio ( self , figsize : tuple [ int , int ] = ( 5 , 4 ) , title : str | None = None , save_path : str | None = None , ax : matplotlib . axes . _axes . Axes | None = None ) -> matplotlib . axes . _axes . Axes :
+ class AnalysisResultDctFeatures ( cl.analysis.AnalysisResult ):
+ Discrete Cosine Transform (DCT) analysis results for one recording.
+ mea_layout : list[list[int]]
+ Spatial layout of the MEA used to calculate this result.
+ k : int
+ The frequency index (coefficient index) of the DCT.
+ dct_height_coefficients : Array2DFloat
+ DCT coefficients along the height dimension.
+ dct_width_coefficients : Array2DFloat
+ DCT coefficients along the width dimension.
+ dct_features : dict[str, float]
+ Dictionary mapping DCT coefficients to their values.
+Keys are formatted as "dct{i}{j}_firing" where i, j are spatial indices for rows / columns respectively.
+ def plot ( self , figsize : tuple [ int , int ] = ( 9 , 8 ) , title : str | None = None , save_path : str | None = None , cmap : str | matplotlib . colors . Colormap = 'RdBu' ) -> matplotlib . figure . Figure :
+ Creates a (k x k) plot of DCT coefficients.
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ cmap: Colour map override.
+ Returns:
+ Figure: The figure used to create the plot.
+ class AnalysisResultFiringStats ( cl.analysis.AnalysisResult ):
+ Firing stat analysis for one recording.
+ bin_size_sec : float
+ Size of each time bin in seconds which governs time units for value interpretation.
+ firing_counts : Array2DInt
+ Array of spike count for each channel and time bin with shape (channel_count, bin_count) .
+ firing_rates : Array2DFloat
+ Array of spike firing rates in time units for each channel and time bin with shape (channel_count, bin_count) .
+ channel_mean_firing_rates : list[float]
+ Mean firing rate in time units for each channel as a list with length channel_count .
+ channel_var_firing_rates : list[float]
+ Variance in firing rate in time units for each channel as a list with length channel_count .
+ culture_mean_firing_rates : float
+ Mean firing rate in time units across all channels and time bins.
+ culture_var_firing_rates : float
+ Variance in firing rate in time units across all channels and time bins.
+ culture_max_firing_rates : float
+ Maximum firing rate in time units across all channels and time bins.
+ channel_ISI : list[list[float]]
+ List of inter-spike intervals (ISI) in time units for each channel, where the outer list has length channel_count .
+ channel_ISI_mean : list[float]
+ Mean inter-spike intervals (ISI) in time units for each channel, with length channel_count .
+ channel_ISI_var : list[float]
+ Variance in inter-spike intervals (ISI) in time units for each channel, with length channel_count .
+ culture_ISI_mean : float
+ Mean inter-spike intervals (ISI) in time units for all channels.
+ culture_ISI_var : float
+ Variance in inter-spike intervals (ISI) in time units for all channels.
+ class AnalysisResultsFunctionalConnectivity ( cl.analysis.AnalysisResult ):
+ Functional Connectivity (FC) analysis results for one recording.
+ bin_size_sec : float
+ Size of each time bin in seconds.
+ correlation_threshold : float
+ Absolute correlation threshold in [0, 1] for constructing the FC graph.
+ adjacency_matrix : Array2DFloat
+ Weighted adjacency matrix for the thresholded FC graph, shape (channel_count, channel_count).
+ total_edge_weights : float
+ Sum of all (non-zero) edge weights in the thresholded FC graph.
+ average_edge_weights : float
+ Mean edge weight over all existing edges.
+ clustering_coefficient : float
+ Average weighted clustering coefficient of the FC graph.
+ graph_partition : dict
+ Graph partition that maximises modularity, based on Louvain community.
+ modularity_index : float
+ Modularity of the partition found via greedy modularity maximisation.
+ max_betweenness_centrality : float
+ Maximum weighted betweenness centrality across all nodes.
+ def plot ( self , figsize : tuple [ int , int ] = ( 6 , 6 ) , title : str | None = None , save_path : str | None = None , ax : matplotlib . axes . _axes . Axes | None = None ):
+ Creates a visualisation of functional connectivity where the edges are
+Pearson correlations and nodes are coloured by Louvain community where
+applicable.
+ Arguments:
+ figsize: Size of the plot figure.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ ax: Axes draw the plots. (Defaults to None).
+ class AnalysisResultInformationEntropy ( cl.analysis.AnalysisResult ):
+ Information entropy analysis results for one recording.
+ bin_size_sec : float
+ Size of each time bin in seconds.
+ information_entropy_per_time_bin : Array1DFloat
+ Information entropy for each time bin.
+ class AnalysisResultComplexityLempelZiv ( cl.analysis.AnalysisResult ):
+ Lempel-Ziv Complexity (LZC) analysis results for one recording.
+ bin_size_sec : float
+ Size of each time bin in seconds.
+ lzc_scores_per_channel : Array2DFloat
+ LZC scores for each channel with shape (channel_count, 1)
+ class AnalysisResultSpikeTriggeredHistogram ( cl.analysis.AnalysisResult ):
+ Spike triggered histogram analysis results for one recording.
+ bin_size_sec : float
+ Bin size in seconds used for the histogram.
+ start_sec : float
+ Time in seconds to include before the trigger spike.
+ end_sec : float
+ Time in seconds to include after the trigger spike.
+ num_eligible_channels : int
+ Number of channels above the minimum firing rate use for analysis.
+ min_firing_rate_threshold_hz : float
+ Threshold in Hz that defines eligibility of a channel for analysis.
+ histogram_bins : Array1DFloat
+ histograms : dict[tuple[int, int], Array1DInt]
+ Spike triggered histograms for each pair of top eligible channels by mean firing rate.
+ def plot ( self , figsize : tuple [ int , int ] = ( 8 , 2 ) , title : str | None = None , save_path : str | None = None , axes : list [ matplotlib . axes . _axes . Axes ] | None = None ):
+ Creates a plot of all the histograms.
+ Arguments:
+ figsize: Size of the plot for each histogram.
+ title: Title for the plot, if not provided, a default will be used.
+ save_path: Path to the save the plot instead of showing it.
+ axes: List of Axes (one for each histogram) to draw the plots. (Defaults to None).
+ Returns:
+ list[Axes]: List of Axes drawn with the histogram.
+ type SpecialFloat = float
+ Float type that support serialisation of special floats like nan and inf.
+ type Array1DFloat = numpy.ndarray[tuple[int], numpy.dtype[numpy.floating]]
+ A 1D float NumPy array type that serialises to a list.
+ type Array1DInt = numpy.ndarray[tuple[int], numpy.dtype[numpy.int64]]
+ A 1D integer NumPy array type that serialises to a list.
+ type Array2DInt = numpy.ndarray[tuple[int, int], numpy.dtype[numpy.int64]]
+ A 2D integer NumPy array type that serialises to a list.
+ type Array2DFloat = numpy.ndarray[tuple[int, int], numpy.dtype[numpy.floating]]
+ A 2D float NumPy array type that serialises to a list.
+ @dataclass
+ class Burst :
+ Represents a single burst with start and end times in frames.
+ Burst ( start_frame : int , end_frame : int )
+ start_frame : int
+ end_frame : int
+ def get_duration ( self , sampling_frequency : int | float ) -> float :
+ Calculates the burst duration in seconds.
+ @dataclass
+ class Bursts :
+ A collection of Burst objects.
+ Bursts ( data : list [ Burst ] = < factory > , _current_burst_start_frame : int | None = None )
+ data : list[ Burst ]
+ is_bursting : bool
+ def step ( self , frame : int , is_bursting : bool ):
+ Updates the burst list based on the current frame and bursting state.
+This method is called iteratively to open or close burst events.
+ def finalise ( self , end_frame : int ):
+ Ensures any ongoing burst at the end of the recording is properly closed.
+ BurstsType = Bursts

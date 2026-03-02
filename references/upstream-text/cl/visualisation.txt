@@ -1,0 +1,37 @@
+CL API Reference: cl.visualisation cl Contents
+ Cortical Labs Visualisation Module
+ cl.visualisation
+ create_iframe_visualiser
+ create_visualiser
+ Modules
+ cl
+ cl.analysis
+ cl.app
+ cl.app.init
+ cl.app.model
+ cl.app.pack
+ cl.app.run
+ cl.playback
+ cl.visualisation
+ cl.visualisation.jupyter
+ built with pdoc
+ Cortical Labs Visualisation Module
+ This module provides tools for visualising data from the system, when used within a Jupyter notebook. It includes functions for
+creating interactive visualisations that can be embedded in Jupyter notebooks. If used within a Jupyter notebook or Jupyter Lab,
+the visualisations can be rendered in "sidebar" mode, which displays each visualisation on the side of the notebook instead of
+inline.
+ cl .visualisation
+ def create_iframe_visualiser ( iframe_url : str , use_sidebar : bool = True , aspect_ratio : float | None = None ) -> str :
+ Create the HTML needed to display an iframe in a Jupyter notebook.
+ Arguments:
+ iframe_url: URL to load in the iframe for the visualiser.
+ use_sidebar: Whether to enable the sidebar layout for the visualiser, when used in Jupyter notebook/lab.
+ aspect_ratio: Optional aspect ratio (width/height) for the visualiser. Only applies in sidebar mode.
+ def create_visualiser ( javascript_file : str | pathlib . Path , html_file : str | pathlib . Path | None = None , data_streams : list [ str ] | None = None , use_sidebar : bool = True , aspect_ratio : float | None = None ) -> str :
+ Create the HTML needed to display a custom visualiser in a Jupyter notebook, using the built-in data stream Javascript engine.
+ Arguments:
+ javascript_file: Path to the visualiser's JavaScript module file.
+ html_file: Optional path to an HTML file to include in the visualiser.
+ data_streams: Optional list of data stream names to connect to the visualiser.
+ use_sidebar: Whether to enable the sidebar layout for the visualiser, when used in Jupyter notebook/lab.
+ aspect_ratio: Optional aspect ratio (width/height) for the visualiser. Only applies in sidebar mode.

@@ -1,0 +1,104 @@
+{
+  "base_url": "https://docs.corticallabs.com/",
+  "generated_at_utc": "2026-03-02T00:21:07Z",
+  "max_pages": 2000,
+  "count": 12,
+  "results": [
+    {
+      "url": "https://docs.corticallabs.com/",
+      "status": 200,
+      "html_path": "upstream-html/index.html",
+      "text_path": "upstream-text/index.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:20:59Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl.html",
+      "status": 200,
+      "html_path": "upstream-html/cl.html",
+      "text_path": "upstream-text/cl.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:00Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/analysis.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/analysis.html",
+      "text_path": "upstream-text/cl/analysis.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:00Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/app.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/app.html",
+      "text_path": "upstream-text/cl/app.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:02Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/app/init.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/app/init.html",
+      "text_path": "upstream-text/cl/app/init.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:02Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/app/model.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/app/model.html",
+      "text_path": "upstream-text/cl/app/model.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:03Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/app/pack.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/app/pack.html",
+      "text_path": "upstream-text/cl/app/pack.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:03Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/app/run.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/app/run.html",
+      "text_path": "upstream-text/cl/app/run.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:04Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/playback.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/playback.html",
+      "text_path": "upstream-text/cl/playback.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:04Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/visualisation.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/visualisation.html",
+      "text_path": "upstream-text/cl/visualisation.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:05Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/cl/visualisation/jupyter.html",
+      "status": 200,
+      "html_path": "upstream-html/cl/visualisation/jupyter.html",
+      "text_path": "upstream-text/cl/visualisation/jupyter.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:05Z"
+    },
+    {
+      "url": "https://docs.corticallabs.com/index.html",
+      "status": 200,
+      "html_path": "upstream-html/index.html",
+      "text_path": "upstream-text/index.txt",
+      "error": null,
+      "fetched_at": "2026-03-02T00:21:06Z"
+    }
+  ]
+}
