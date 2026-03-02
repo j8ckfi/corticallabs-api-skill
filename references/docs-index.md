@@ -1,7 +1,7 @@
 # Cortical Labs Docs Index
 
 Scrape source: `https://docs.corticallabs.com/`  
-Last scraped (UTC): `2026-03-02T00:21:07Z`  
+Last scraped (UTC): `2026-03-02T00:38:07Z`  
 Successful pages: `12`
 
 ## URL coverage
@@ -24,6 +24,16 @@ Successful pages: `12`
 - Raw HTML mirror: `references/upstream-html/`
 - Extracted text corpus: `references/upstream-text/`
 - Crawl manifest: `references/scrape-manifest.json`
+
+## External context overlays
+
+- Source/version lock: `references/external/source-lock.json`
+- SDK source signatures: `references/external/sdk-signatures.md`
+- Notebook/tutorial index: `references/external/cl-api-doc-index.md`
+- Whitepaper snapshots:
+  - `references/external/whitepaper/whitepaper-abstract.txt`
+  - `references/external/whitepaper/whitepaper-fulltext.txt`
+- Coverage and precedence: `references/external/context-coverage.md`
 
 ## Task-to-file routing
 

@@ -27,6 +27,9 @@ Use this skill when the user asks to:
 - analysis metrics/results: `references/upstream-text/cl/analysis.txt`
 - app packaging/runtime: `references/upstream-text/cl/app.txt` and `references/upstream-text/cl/app/*.txt`
 - playback and visualisation: `references/upstream-text/cl/playback.txt`, `references/upstream-text/cl/visualisation*.txt`
+- SDK source-derived signatures: `references/external/sdk-signatures.md`
+- notebook examples: `references/external/cl-api-doc-index.md`
+- whitepaper context: `references/external/whitepaper/whitepaper-abstract.txt` and `references/external/whitepaper/whitepaper-fulltext.txt`
 
 3. Build the smallest correct solution:
 - prefer `with cl.open() as neurons:` for session lifecycle
@@ -36,6 +39,14 @@ Use this skill when the user asks to:
 4. Validate assumptions with docs lookup:
 - use targeted `rg` searches (examples below) before answering edge-case API questions
 - if behavior differs between CL1 and simulator, call that out explicitly
+
+## No-guesswork protocol
+
+- Treat `references/external/source-lock.json` as the source version lock for all external context.
+- For any API signature or parameter/default question, verify against `references/external/sdk-signatures.md` first.
+- If docs text and source signatures disagree, prioritize source signatures and call out the mismatch.
+- If information is not present in local sources, explicitly state `unknown from available Cortical Labs sources` and propose the minimal experiment to resolve it.
+- Do not infer hardware timings, channel constraints, or safety semantics beyond what is explicitly documented.
 
 ## High-signal constraints
 
@@ -58,6 +69,8 @@ rg -n "StimDesign|BurstDesign|ChannelSet|lead_time_us" references/upstream-text/
 rg -n "^ def analyse_|^ class AnalysisResult" references/upstream-text/cl/analysis.txt
 rg -n "python -m cl\\.app\\.(init|pack|run)|required files|info.json|default.json" references/upstream-text/cl/app*.txt references/upstream-text/cl/app/*.txt
 rg -n "python -m cl\\.playback|CLI Controls|WebSocket" references/upstream-text/cl/playback.txt
+rg -n "^## src/cl|^- `def |^- `class " references/external/sdk-signatures.md
+rg -n "generated_at_utc|commit|version" references/external/source-lock.json
 ```
 
 ## Key commands
@@ -77,13 +90,21 @@ python -m cl.playback my_experiment.h5
 
 ## Refresh the local docs scrape
 
-Use this when the docs site changes:
+Use these when sources change:
 
 ```bash
+# Refresh docs.corticallabs.com mirror
 python scripts/scrape_corticallabs_docs.py --max-pages 2000
+
+# Refresh external repos + whitepaper + derived artifacts
+python scripts/refresh_external_context.py
 ```
 
-The script updates:
+The scripts update:
 - `references/upstream-html/` (raw mirrored pages)
 - `references/upstream-text/` (plain-text extraction)
 - `references/scrape-manifest.json` (crawl manifest)
+- `references/external/source-lock.json` (commit/version lock)
+- `references/external/sdk-signatures.md` (source-derived API signatures)
+- `references/external/cl-api-doc-index.md` (notebook index)
+- `references/external/whitepaper/*` (whitepaper artifacts)

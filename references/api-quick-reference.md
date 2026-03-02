@@ -1,5 +1,7 @@
 # Cortical Labs API Quick Reference
 
+Version lock for this snapshot: `references/external/source-lock.json`
+
 ## Core runtime
 
 - Session lifecycle: `cl.open(take_control=True, wait_until_recordable=True)`

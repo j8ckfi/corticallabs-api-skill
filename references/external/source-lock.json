@@ -1,0 +1,21 @@
+{
+  "generated_at_utc": "2026-03-02T00:36:33Z",
+  "sources": {
+    "docs_site": "https://docs.corticallabs.com/",
+    "cl_api_doc_repo": {
+      "url": "https://github.com/Cortical-Labs/cl-api-doc.git",
+      "commit": "a6726472cb3375ebcd836ec2dd239ebff7a1624a"
+    },
+    "cl_sdk_repo": {
+      "url": "https://github.com/Cortical-Labs/cl-sdk.git",
+      "commit": "fea6277edd3169bdad4a46f0e1eadab3729058e7",
+      "version": "0.29.0"
+    },
+    "whitepaper": {
+      "doi_url": "https://doi.org/10.48550/arXiv.2602.11632",
+      "arxiv_abs": "https://arxiv.org/abs/2602.11632",
+      "arxiv_pdf": "https://arxiv.org/pdf/2602.11632.pdf",
+      "fulltext_extracted": true
+    }
+  }
+}
